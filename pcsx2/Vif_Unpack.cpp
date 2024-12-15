@@ -320,6 +320,13 @@ static __fi u8* getVUptr(uint idx, int offset)
 	return (u8*)(vuRegs[idx].Mem + (offset & (idx ? 0x3ff0 : 0xff0)));
 }
 
+bool okk = false;
+bool needOpenFile = true;
+#include <fstream>
+#include <sstream>
+#include <format>
+
+std::ofstream meshFile;
 
 _vifT int nVifUnpack(const u8* data)
 {
@@ -332,19 +339,83 @@ _vifT int nVifUnpack(const u8* data)
 	const bool isFill = (vifRegs.cycle.cl < wl);
 	s32        size   = ret << 2;
 
+	//if (vn == 3) // if v4_32
+	//if (vif.cmd == 0x69)
+	if (okk)
+	{
+		if (needOpenFile)
+		{
+			needOpenFile = false;
+			//meshFile = std::ofstream("C:\\Users\\elect\\Desktop\\DDAtest\\test.bin", std::ios_base::out | std::ios_base::binary | std::ios_base::trunc);
+
+			meshFile = std::ofstream("C:\\Users\\elect\\Desktop\\DDAtest\\test.bin", std::ios_base::out | std::ios_base::trunc);
+		}
+		const u8 u0v = data[0];
+		//if (u0v == 56)
+		{
+		/*const u8 u0 = data[0];
+			const u8 u1 = data[1];
+			const u8 u2 = data[2];
+			const u8 u3 = data[3];
+			printf("UNPACK UWU: %02X %02X %02X %02X\n", u0, u1, u2, u3);*/
+		//for (size_t i = 0; i < size; i++)
+		//{
+		//	if (i % 16 == 0 && i != 0)
+		//		printf("\n");
+
+		//	const u8 u0 = data[i];
+		//	printf("%02X ", u0);
+
+		//}
+		//printf("UNPACK SIZE = %d\n", ret);
+			//meshFile.write((char*data), size);
+
+			const uint vl = vif.cmd & 0x03;
+			const uint vn = (vif.cmd >> 2) & 0x3;
+			const bool flg = (vifRegs.code >> 15) & 1;
+			static const char* const vntbl[] = {"S", "V2", "V3", "V4"};
+			static const uint vltbl[] = {32, 16, 8, 5};
+			std::string test = std::string("UNPACK ") + vntbl[vn] + std::string("_") + std::to_string(vltbl[vl]) + std::string("\n");
+			
+			std::stringstream stream;
+			//std::string result(stream.str());
+			for (size_t i = 0; i < size; i++)
+			{
+				if (i % 16 == 0 && i != 0)
+					//printf("\n");
+					test += "\n";
+					//stream << "\n";
+
+				const u8 u0 = data[i];
+				/*stream << std::hex << u0;
+				stream << " ";*/
+				//test += std::to_string(u0) + std::string(" ");
+				std::string num = std::format("{:x} ", u0);
+				if (num.size() == 2)
+					num = "0" + num;
+				test += num;
+				//printf("%02X ", u0);
+
+			}
+			//test += stream.str();
+			test += "\n\n";
+			meshFile.write(test.c_str(), test.size());
+		}
+	}
+
 	if (ret == vif.tag.size) // Full Transfer
 	{
 		if (v.bSize) // Last transfer was partial
 		{
-			memcpy(&v.buffer[v.bSize], data, size);
-			v.bSize += size;
-			size = v.bSize;
-			data = v.buffer;
+			//memcpy(&v.buffer[v.bSize], data, size);
+			//v.bSize += size;
+			//size = v.bSize;
+			//data = v.buffer;
 
-			vif.cl = 0;
-			vifRegs.num = (vifXRegs.code >> 16) & 0xff; // grab NUM form the original VIFcode input.
-			if (!vifRegs.num)
-				vifRegs.num = 256;
+			//vif.cl = 0;
+			//vifRegs.num = (vifXRegs.code >> 16) & 0xff; // grab NUM form the original VIFcode input.
+			//if (!vifRegs.num)
+			//	vifRegs.num = 256;
 		}
 
 		if (!idx || !THREAD_VU1)

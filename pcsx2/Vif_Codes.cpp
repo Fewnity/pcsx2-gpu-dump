@@ -749,7 +749,25 @@ vifOp(vifCode_Unpack)
 		const bool flg = (vifRegs.code >> 15) & 1;
 		static const char* const vntbl[] = {"S", "V2", "V3", "V4"};
 		static const uint vltbl[] = {32, 16, 8, 5};
+		uint flgAddr = calc_addr<idx>(flg);
+		//if (vn == 3) // if v4_32
+		//{
+		//	/*const u8 u0 = data[0];
+		//	const u8 u1 = data[1];
+		//	const u8 u2 = data[2];
+		//	const u8 u3 = data[3];
+		//	printf("UNPACK UWU: %02X %02X %02X %02X\n", u0, u1, u2, u3);*/
+		//	for (size_t i = 0; i < vifX.vifpacketsize; i++)
+		//	{
+		//		if (i % 16 == 0)
+		//			printf("\n");
 
+		//		const u8 u0 = data[i];
+		//		printf("%02X ", u0);
+		//	}
+		//	printf("UNPACK SIZE = %d\n", vifX.vifpacketsize);
+
+		//}
 		VifCodeLog("Unpack %s_%u (%s) @ 0x%04X%s (cl=%u  wl=%u  num=0x%02X)",
 			vntbl[vn], vltbl[vl], (vifX.cmd & 0x10) ? "masked" : "unmasked",
 			calc_addr<idx>(flg), flg ? "(FLG)" : "",
